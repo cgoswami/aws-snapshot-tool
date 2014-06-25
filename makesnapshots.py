@@ -20,6 +20,9 @@
 # version 3.2: Tags of the volume are placed on the new snapshot
 # version 3.3: Merged IAM role addidtion from Github
 
+# Adding ec2 instance name and device name in the description of the snapshots
+# this helps in recognising the volumes easily when restore is required
+
 from boto.ec2.connection import EC2Connection
 from boto.ec2.regioninfo import RegionInfo
 import boto.sns
@@ -99,6 +102,7 @@ else:
     # non proxy:
     # using roles
     if aws_access_key:
+
         conn = EC2Connection(aws_access_key, aws_secret_key, region=region)
     else:
         conn = EC2Connection(region=region)
@@ -120,6 +124,14 @@ if sns_arn:
             sns = boto.sns.connect_to_region(ec2_region_name, aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key)
         else:
             sns = boto.sns.connect_to_region(ec2_region_name)
+
+
+## adding routine to get extra info like instance name per volume
+def get_ec2_instance_names(id_of_ec2):
+    if id_of_ec2:
+        ec2_test = conn.get_all_instances(filters={'instance-id': id_of_ec2})
+        new_res = ec2_test[0].instances[0].tags['Name']
+    return new_res
 
 
 def get_resource_tags(resource_id):
@@ -148,6 +160,11 @@ print 'Finding volumes that match the requested tag ({ "tag:%(tag_name)s": "%(ta
 vols = conn.get_all_volumes(filters={'tag:' + config['tag_name']: config['tag_value']})
 
 for vol in vols:
+    machine_name = get_ec2_instance_names(vol.attach_data.instance_id)
+    machine_id = vol.attach_data.instance_id
+    device_info = vol.attach_data.device
+    extra_info = machine_name + '\t' + machine_id + '\t' + device_info
+    #print extra_info
     try:
         count_total += 1
         logging.info(vol)
@@ -157,9 +174,15 @@ for vol in vols:
             'vol_id': vol.id,
             'date_suffix': date_suffix,
             'date': datetime.today().strftime('%d-%m-%Y %H:%M:%S')
+
         }
+
+        extra_description = extra_info + '\t' + description
+
+        print extra_description
+
         try:
-            current_snap = vol.create_snapshot(description)
+            current_snap = vol.create_snapshot(extra_description)
             set_resource_tags(current_snap, tags_volume)
             suc_message = 'Snapshot created with description: %s and tags: %s' % (description, str(tags_volume))
             print '     ' + suc_message
@@ -237,4 +260,3 @@ if sns_arn:
     sns.publish(sns_arn, message, 'Finished AWS snapshotting')
 
 logging.info(result)
-
