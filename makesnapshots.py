@@ -180,7 +180,7 @@ for vol in vols:
 
         extra_description = extra_info + '\t' + description
 
-        print extra_description
+        #print extra_description
 
         try:
             current_snap = vol.create_snapshot(extra_description)
