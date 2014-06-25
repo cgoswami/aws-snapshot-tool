@@ -153,7 +153,6 @@ def set_resource_tags(resource, tags):
 				resource.add_tag(tag_key, tag_value)
 
 vols = conn.get_all_volumes(filters={config['tag_name']: config['tag_value']})
-toto = 0
 for vol in vols:
 	machine_name = get_ec2_instance_names(vol.attach_data.instance_id)
 	machine_id = vol.attach_data.instance_id
