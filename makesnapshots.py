@@ -121,15 +121,17 @@ if sns_arn:
         else:
             sns = boto.sns.connect_to_region(ec2_region_name)
 
+
 def get_resource_tags(resource_id):
     resource_tags = {}
     if resource_id:
-        tags = conn.get_all_tags({ 'resource-id': resource_id })
+        tags = conn.get_all_tags({'resource-id': resource_id})
         for tag in tags:
             # Tags starting with 'aws:' are reserved for internal use
             if not tag.name.startswith('aws:'):
                 resource_tags[tag.name] = tag.value
     return resource_tags
+
 
 def set_resource_tags(resource, tags):
     for tag_key, tag_value in tags.iteritems():
@@ -143,7 +145,7 @@ def set_resource_tags(resource, tags):
 
 # Get all the volumes that match the tag criteria
 print 'Finding volumes that match the requested tag ({ "tag:%(tag_name)s": "%(tag_value)s" })' % config
-vols = conn.get_all_volumes(filters={ 'tag:' + config['tag_name']: config['tag_value'] })
+vols = conn.get_all_volumes(filters={'tag:' + config['tag_name']: config['tag_value']})
 
 for vol in vols:
     try:
