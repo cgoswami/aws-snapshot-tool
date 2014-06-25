@@ -21,7 +21,8 @@
 # version 3.3: Merged IAM role addidtion from Github
 
 # Adding ec2 instance name and device name in the description of the snapshots
-# this helps in recognising the volumes easily when restore is required
+# This helps in recognising the volumes easily when restore is required
+# Each corresponding ec2 instance must have Tag with Key "Name" and Value assigned as its name/hostname
 
 from boto.ec2.connection import EC2Connection
 from boto.ec2.regioninfo import RegionInfo
