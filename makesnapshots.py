@@ -158,9 +158,12 @@ def set_resource_tags(resource, tags):
 
 # Get all the volumes that match the tag criteria
 print 'Finding volumes that match the requested tag ({ "tag:%(tag_name)s": "%(tag_value)s" })' % config
-vols = conn.get_all_volumes(filters={'tag:' + config['tag_name']: config['tag_value']})
 
+#vols = conn.get_all_volumes(filters={'tag:' + config['tag_name']: config['tag_value']})
+
+vols = conn.get_all_volumes(filters={config['tag_name']: config['tag_value']})
 for vol in vols:
+#     print vol
     machine_name = get_ec2_instance_names(vol.attach_data.instance_id)
     machine_id = vol.attach_data.instance_id
     device_info = vol.attach_data.device
@@ -185,7 +188,7 @@ for vol in vols:
         try:
             current_snap = vol.create_snapshot(extra_description)
             set_resource_tags(current_snap, tags_volume)
-            suc_message = 'Snapshot created with description: %s and tags: %s' % (description, str(tags_volume))
+            suc_message = 'Snapshot created with description: %s and tags: %s' % (extra_description, str(tags_volume))
             print '     ' + suc_message
             logging.info(suc_message)
             total_creates += 1
