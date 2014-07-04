@@ -181,7 +181,7 @@ for vol in vols:
 
         }
 
-        extra_description = extra_info + '\t' + description
+        extra_description = description + '\t' + extra_info 
 
         #print extra_description
 
